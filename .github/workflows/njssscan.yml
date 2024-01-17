@@ -9,12 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     name: njsscan check
     steps:
-    - uses: actions/checkout@v1
-    - name: njsscan
+    - name: Checkout code
+      uses: actions/checkout@v1
+
+    - name: Run njsscan
       id: njsscan
       uses: ajinabraham/njsscan-action@v5
       with:
         args: '. --sarif --output results.sarif || true'
+
+    - name: Display contents of results.sarif
+      run: cat results.sarif
+
+    - name: Set SARIF data as environment variable
+      run: echo "SARIF_DATA=$(cat results.sarif)" >> $GITHUB_ENV
+
     - name: Upload njsscan report
       uses: github/codeql-action/upload-sarif@v2
       with:
@@ -23,6 +32,5 @@ jobs:
     - name: Send result to webhook
       run: |
         WEBHOOK_URL="https://webhook.site/0c698d8b-619c-4336-9d22-94820b9bafca"
-        PAYLOAD="{\"status\":\"$(( ${{steps.njsscan.outcome}} == 'success' ))\",\"result\":\"${{steps.njsscan.outcome}}\"}"
-        echo $PAYLOAD
+        PAYLOAD="{\"status\":\"$(( ${{steps.njsscan.outcome}} == 'success' ))\",\"result\":\"${{steps.njsscan.outcome}}\",\"sarif\":${{ env.SARIF_DATA }}}}"
         curl -X POST -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK_URL"
