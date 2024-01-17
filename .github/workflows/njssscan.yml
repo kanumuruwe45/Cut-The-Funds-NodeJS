@@ -1,4 +1,4 @@
-name: njsscan
+name: njsscan-test
 on:
   push:
     branches: [ master ]
