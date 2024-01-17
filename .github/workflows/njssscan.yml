@@ -24,4 +24,5 @@ jobs:
       run: |
         WEBHOOK_URL="https://webhook.site/0c698d8b-619c-4336-9d22-94820b9bafca"
         PAYLOAD="{\"status\":\"$(( ${{steps.njsscan.outcome}} == 'success' ))\",\"result\":\"${{steps.njsscan.outcome}}\"}"
+        echo $PAYLOAD
         curl -X POST -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK_URL"
